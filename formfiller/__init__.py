@@ -38,6 +38,11 @@ class FormFiller(object):
         if definition['name'] not in self.payload:
           continue
 
+        if not self.payload[definition['name']]:
+          continue
+
+        #print("filling {}".format(definition['name']))
+
         if def_type == 'draw':
           self.__fill_draw(draw, definition)
         elif def_type == 'fill':
@@ -85,8 +90,8 @@ class FormFiller(object):
     draw.stroke_color = prev_stroke
 
   def __fill_overlay(self, definition):
-    base64encoded_img_with_mime = self.payload[definition['name']]
-    matches = re.fullmatch(r"(data:image\/(.+?);base64),(.+)", base64encoded_img_with_mime.decode(), re.I)
+    base64encoded_img_with_mime = str(self.payload[definition['name']])
+    matches = re.fullmatch(r"(data:image\/(.+?);base64),(.+)", base64encoded_img_with_mime, re.I)
     mime_type = matches.group(1)
     image_format = matches.group(2)
     base64encoded_img = matches.group(3)
