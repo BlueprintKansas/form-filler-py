@@ -20,9 +20,9 @@ ff = FormFiller(
   payload=payload,
   image='path/to/base-form-image.png',
   form=form_definition,
-  font='path/to/font.ttf',
-  font_color='blue',
-  font_size=24
+  font='path/to/font.ttf', # default Arial
+  font_color='blue', # default
+  font_size=24 # default
 )
 
 print("base64 image: {}".format(ff.as_base64()))
