@@ -3,6 +3,7 @@ from wand.drawing import Drawing
 from wand.image import Image
 from wand.color import Color
 import base64
+import re
 
 class FormFiller(object):
   def __init__(self, payload, form, image, font='Arial', font_size=24, font_color='blue'):
@@ -16,9 +17,12 @@ class FormFiller(object):
     self.font_size = font_size
     self.font_color = font_color
 
-    self.fill()
+    self.__fill()
 
-  def fill(self):
+  def __fill(self):
+    # overlays must wait till after initial image is drawn, so just track if we need it.
+    has_overlays = False
+
     # set up base image
     with Drawing() as draw:
       draw.font = self.font
@@ -40,6 +44,8 @@ class FormFiller(object):
           self.__fill_fill(draw, definition)
         elif def_type == 'circle':
           self.__fill_circle(draw, definition)
+        elif def_type == 'overlay':
+          has_overlays = True
         else:
           raise ValueError("unknown definition type: {}".format(def_type))
 
@@ -47,6 +53,14 @@ class FormFiller(object):
       with Image(filename=self.image) as image:
         draw(image)
         self.drawn = image.make_blob(format='png')
+
+    if has_overlays:
+      for definition in self.form:
+        if definition['type'] != 'overlay':
+          continue
+        self.__fill_overlay(definition)
+
+    # image fully drawn
 
   def __fill_draw(self, draw, definition):
     draw.text(definition['x1'], definition['y2'], self.payload[definition['name']])
@@ -65,8 +79,27 @@ class FormFiller(object):
     y2 = definition['y2']
     prev_stroke = draw.stroke_color
     draw.stroke_color = Color(self.font_color)
-    draw.circle((x1, y1), (x2, y2))
+    center_y = (x1 + y1) / 2
+    center_x = (x1 + x2) / 2
+    draw.circle((center_x, center_y), (x1, center_y))
     draw.stroke_color = prev_stroke
+
+  def __fill_overlay(self, definition):
+    base64encoded_img_with_mime = self.payload[definition['name']]
+    matches = re.fullmatch(r"(data:image\/(.+?);base64),(.+)", base64encoded_img_with_mime.decode(), re.I)
+    mime_type = matches.group(1)
+    image_format = matches.group(2)
+    base64encoded_img = matches.group(3)
+    #print("mime={} image_format={} b64={}".format(mime_type, image_format, base64encoded_img[0:10]))
+    overlay = Image(blob=base64.b64decode(base64encoded_img), format=image_format)
+
+    # optionally resize overlay if necessary
+    target_width = definition['x2'] - definition['x1']
+    target_height = definition['y2'] - definition['y1']
+    if overlay.width > target_width or overlay.height > target_height:
+      overlay.resize(width=target_width, height=target_height)
+
+    self.overlay(base64.b64encode(overlay.make_blob(format='png')), top=definition['y1'], left=definition['x1'])
 
   def as_base64(self):
     return base64.b64encode(self.as_png())
@@ -79,4 +112,11 @@ class FormFiller(object):
 
   def to_file(self, filename):
     return self.as_image().save(filename=filename)
+
+  def overlay(self, base64_encoded_string, format='png', left=0, top=0):
+    binary_overlay = base64.b64decode(base64_encoded_string)
+    with Image(blob=binary_overlay, format=format) as overlay_image:
+      original_image = self.as_image()
+      original_image.composite(overlay_image, left=left, top=top)
+      self.drawn = original_image.make_blob(format='png')
 

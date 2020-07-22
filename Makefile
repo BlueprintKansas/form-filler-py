@@ -1,5 +1,5 @@
 test:
-	PYTHONPATH='.' pytest -s
+	PYTHONPATH='.' pytest -s -vv
 
 build:
 	python setup.py build
