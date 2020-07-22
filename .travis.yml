@@ -5,5 +5,7 @@ notifications:
 language: python
 python:
   - 3.6
+before_install:
+  - sudo apt-get -y install ghostscript
 install: make deps
 script: make test
