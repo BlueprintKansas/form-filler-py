@@ -55,9 +55,13 @@ class FormFiller(object):
           raise ValueError("unknown definition type: {}".format(def_type))
 
       # stash the drawn image while we have the objects in scope
-      with Image(filename=self.image) as image:
-        draw(image)
-        self.drawn = image.make_blob(format='png')
+      if isinstance(self.image, Image):
+        draw(self.image)
+        self.drawn = self.image.make_blob(format='png')
+      else:
+        with Image(filename=self.image) as image:
+          draw(image)
+          self.drawn = image.make_blob(format='png')
 
     if has_overlays:
       for definition in self.form:
