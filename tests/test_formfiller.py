@@ -19,7 +19,7 @@ def test_synopsis():
   ]
 
   ff = FormFiller(
-    payload={'hello': 'world', 'iamcircle': True, 'iamfill': True, 'signature': b"data:image/png;base64," + sig_b64 },
+    payload={'hello': 'world', 'iamcircle': True, 'iamfill': True, 'signature': "data:image/png;base64," + sig_b64.decode() },
     image='test-base-image.png',
     form=definition
   )
