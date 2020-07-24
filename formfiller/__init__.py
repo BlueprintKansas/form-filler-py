@@ -49,6 +49,8 @@ class FormFiller(object):
           self.__fill_fill(draw, definition)
         elif def_type == 'circle':
           self.__fill_circle(draw, definition)
+        elif def_type == 'enclose':
+          self.__fill_enclose(draw, definition)
         elif def_type == 'overlay':
           has_overlays = True
         else:
@@ -81,6 +83,19 @@ class FormFiller(object):
     y2 = definition['y2']
     draw.rectangle(left=x1, top=y1, right=x2, bottom=y2)
 
+  def __fill_enclose(self, draw, definition):
+    x1 = definition['x1']
+    x2 = definition['x2']
+    y1 = definition['y1']
+    y2 = definition['y2']
+    prev_fill = draw.fill_color
+    prev_stroke = draw.stroke_color
+    draw.stroke_color = Color(self.font_color)
+    draw.fill_color = Color('transparent') # TODO optional?
+    draw.rectangle(left=x1, top=y1, right=x2, bottom=y2)
+    draw.stroke_color = prev_stroke
+    draw.fill_color = prev_fill
+
   def __fill_circle(self, draw, definition):
     x1 = definition['x1']
     x2 = definition['x2']
@@ -88,10 +103,13 @@ class FormFiller(object):
     y2 = definition['y2']
     prev_stroke = draw.stroke_color
     draw.stroke_color = Color(self.font_color)
-    center_y = (x1 + y1) / 2
+    prev_fill = draw.fill_color
+    draw.fill_color = Color('transparent') # TODO optional?
+    center_y = (y1 + y2) / 2
     center_x = (x1 + x2) / 2
     draw.circle((center_x, center_y), (x1, center_y))
     draw.stroke_color = prev_stroke
+    draw.fill_color = prev_fill
 
   def __fill_overlay(self, definition):
     base64encoded_img_with_mime = str(self.payload[definition['name']])
