@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='formfiller',
-      version='0.2',
+      version='0.3',
       description='Create images of filled-out forms',
       url='http://github.com/BlueprintKansas/form-filler-py',
       author='Peter Karman',

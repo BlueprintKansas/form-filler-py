@@ -96,6 +96,9 @@ class FormFiller(object):
   def __fill_overlay(self, definition):
     base64encoded_img_with_mime = str(self.payload[definition['name']])
     matches = re.fullmatch(r"(data:image/(.+?);base64),(.+)", base64encoded_img_with_mime, re.I)
+    if not matches:
+      raise ValueError("overlay requires a 'data:image/<type>;base64,' prefix")
+
     mime_type = matches.group(1)
     image_format = matches.group(2)
     base64encoded_img = matches.group(3)
