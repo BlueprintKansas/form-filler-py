@@ -7,7 +7,7 @@ import re
 
 class FormFiller(object):
     def __init__(
-        self, payload, form, image, font="Arial", font_size=24, font_color="blue"
+        self, payload, form, image, font="Liberation-Sans", font_size=24, font_color="blue"
     ):
         if not isinstance(form, list):
             raise ValueError("form must be a list of field definitions")
