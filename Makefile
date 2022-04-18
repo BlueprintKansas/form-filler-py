@@ -7,7 +7,7 @@ build:
 deps:
 	python setup.py install
 	pip install -U -r requirements.txt
-	pip install pytest
+	pip install pytest black flake8
 
 distcheck:
 	python setup.py sdist
@@ -15,4 +15,8 @@ distcheck:
 dist:
 	python setup.py sdist upload
 
-.PHONY: test build deps distcheck dist
+lint:
+	flake8 formfiller/*py tests/*py
+	black formfiller/*py tests/*py
+
+.PHONY: test build deps distcheck dist lint
