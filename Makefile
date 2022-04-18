@@ -16,7 +16,7 @@ dist:
 	python setup.py sdist upload
 
 lint:
-	flake8 ksmyvoteinfo/*py
-	black ksmyvoteinfo/*py
+	flake8 formfiller/*py tests/*py
+	black formfiller/*py tests/*py
 
 .PHONY: test build deps distcheck dist lint
