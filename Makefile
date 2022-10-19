@@ -1,6 +1,9 @@
 test:
 	PYTHONPATH='.' pytest -s -vv
 
+test-cli:
+	@PYTHONPATH='.' python -m formfiller --image=test-base-image.png --payload=form-payload.json --form=form-definition.json
+
 build:
 	python setup.py build
 

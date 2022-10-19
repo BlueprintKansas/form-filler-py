@@ -3,12 +3,24 @@ from wand.image import Image
 from wand.color import Color
 import base64
 import re
+import json
 
 
 class FormFiller(object):
     def __init__(
-        self, payload, form, image, font="Liberation-Sans", font_size=24, font_color="blue"
+        self,
+        payload,
+        form,
+        image,
+        font="Liberation-Sans",
+        font_size=24,
+        font_color="blue",
     ):
+        if isinstance(payload, str):
+            payload = json.load(open(payload, "r"))
+        if isinstance(form, str):
+            form = json.load(open(form, "r"))
+
         if not isinstance(form, list):
             raise ValueError("form must be a list of field definitions")
 
